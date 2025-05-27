@@ -1,0 +1,4 @@
+<resources>
+    <string name="plugin_nautica_name">Nautica Plugin</string>
+    <string name="plugin_nautica_description">Marine tools for navigation, autopilot, AIS, tides, and more</string>
+</resources>
