@@ -26,23 +26,23 @@ public class AIS {
     private final OsmandApplication app;
     private final Context context;
     private final MapActivity mapActivity;
-    private final SignalK signalK;
+    private final SignalKClient signalKClient;
     private boolean useOnlineAIS = false;
 
-    public AIS(OsmandApplication app, Context context, MapActivity mapActivity, SignalK signalK) {
+    public AIS(OsmandApplication app, Context context, MapActivity mapActivity, signalKClient signalKClient) {
         this.app = app;
         this.context = context;
         this.mapActivity = mapActivity;
-        this.signalK = signalK;
+        this.signalKClient = signalKClient;
     }
 
     public void updateAISData() {
-        JSONObject aisData = signalK.getCachedData("ais.vessels");
+        JSONObject aisData = signalKClient.getCachedData("ais.vessels");
         if (aisData != null) {
             for (String mmsi : aisData.keySet()) {
                 JSONObject vessel = aisData.optJSONObject(mmsi);
                 if (vessel != null && vessel.optBoolean("sart", false)) {
-                    signalK.updateData("navigation.mob", new JSONObject().put("active", true));
+                    signalKClient.updateData("navigation.mob", new JSONObject().put("active", true));
                 }
             }
         }
@@ -54,7 +54,7 @@ public class AIS {
             String config = app.getSettings().getCustomPreferenceString("ais_online_config", "");
             startOnlineAISFetch(config);
         } else {
-            signalK.connectAIS();
+            signalKClient.connectAIS();
         }
     }
 
@@ -80,7 +80,7 @@ public class AIS {
     public void checkProximityAlarms() {
         if (!app.getSettings().getCustomPreferenceBoolean("ais_proximity_enabled", true)) return;
         String zones = app.getSettings().getCustomPreferenceString("ais_proximity_zones", "1nm,0.5nm");
-        JSONObject vessels = signalK.getVessels();
+        JSONObject vessels = signalKClient.getVessels();
         for (String mmsi : vessels.keySet()) {
             JSONObject vessel = vessels.optJSONObject(mmsi);
             double distance = calculateDistance(vessel.optJSONObject("position"));
@@ -148,7 +148,7 @@ public class AIS {
         @Override
         public List<SearchResult> search(String query) {
             List<SearchResult> results = new ArrayList<>();
-            JSONObject vessels = signalK.getVessels();
+            JSONObject vessels = signalKClient.getVessels();
             for (String mmsi : vessels.keySet()) {
                 JSONObject vessel = vessels.optJSONObject(mmsi);
                 if (vessel != null && (vessel.optString("name", "").contains(query) || mmsi.contains(query))) {

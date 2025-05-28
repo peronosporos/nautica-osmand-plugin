@@ -1,1 +1,1 @@
-./update.sh "Update AIS functionality"
+./update.sh "Update MapView"
